@@ -1,0 +1,12 @@
+# Roblox Studio files
+*.rbxl
+*.rbxlx
+*.rblx
+*.rbxlx.lock
+
+# Rojo build output
+default.project.json
+*.project.json
+
+# Logs / temp
+*.log
