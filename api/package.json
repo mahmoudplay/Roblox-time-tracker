@@ -1,0 +1,26 @@
+{
+  "name": "roblox_discord_bot",
+  "version": "1.0.0",
+  "description": "Time Tracker",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "nodemon src/index",
+    "start": "node dist/index",
+    "build": "tsc ."
+  },
+  "author": "_mp1",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^8.23.0"
+  }
+}

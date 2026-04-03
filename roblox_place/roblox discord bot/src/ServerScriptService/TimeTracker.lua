@@ -1,4 +1,4 @@
--- local ApiClient = require(script.Parent.ApiClient)
+local ApiClient = require(script.Parent.ApiClient)
 local Security = require(script.Parent.Security)
 
 local TimeTracker = {}
@@ -24,7 +24,6 @@ function TimeTracker.start(player)
 
                 if delta > 0 then
                     leaderstats.Time.Value += delta
-                    -- ApiClient.sendTime(player, delta)
                 end
             end
         end)
@@ -40,6 +39,7 @@ function TimeTracker.stop(player)
         if session then
             if time > 0 then
                 print("Final Total:", time)
+                ApiClient.sendTime(player, time)
             end
         end
 
