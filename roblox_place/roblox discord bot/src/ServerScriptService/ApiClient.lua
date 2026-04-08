@@ -26,4 +26,23 @@ function ApiClient.sendTime(player, minutes)
     )
 end
 
+function ApiClient.getCode(player)
+
+    local json = HttpService:JSONEncode({ userId = player.UserId })
+
+    local response = HttpService:PostAsync(
+        "http://localhost:3000/validation",
+        json,
+        Enum.HttpContentType.ApplicationJson,
+        false,
+        {
+            ["authorization"] = apiKey,
+        }
+    )
+
+    local data = HttpService:JSONDecode(response)
+
+    return data
+end
+
 return ApiClient

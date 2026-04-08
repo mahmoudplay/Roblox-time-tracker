@@ -5,6 +5,7 @@ const accountsEmbed = require('../utils/accountsEmbed');
 const verifyUser = require('../utils/verfiyUser');
 const { RobloxUsers } = require('../schemas/usersSchema');
 const timeTracker = require('../schemas/timeSchema');
+const { validationCode } = require('../schemas/validSchema');
 
 
 module.exports = class CreateTimeTrackerSlashCommand extends BaseSlashCommand {
@@ -68,12 +69,23 @@ module.exports = class CreateTimeTrackerSlashCommand extends BaseSlashCommand {
                     .setStyle(TextInputStyle.Short)
                     .setPlaceholder('مثل: mahmoudplay')
                     .setMinLength(3);
+
+                const codeInput = new TextInputBuilder()
+                    .setCustomId('codeInput')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('ادخل الماب لتحصل عليه')
+                    .setMinLength(3);
                     
                 const nameLabel = new LabelBuilder()
                     .setLabel("اسمك بي روبلوكس")
                     .setTextInputComponent(nameInput);
 
+                const codeLabel = new LabelBuilder()
+                    .setLabel("كود التحقق")
+                    .setTextInputComponent(codeInput);
+
                 modal.addLabelComponents(nameLabel);
+                modal.addLabelComponents(codeLabel);
 
                 await interaction.showModal(modal);
             }else{
@@ -191,7 +203,7 @@ module.exports = class CreateTimeTrackerSlashCommand extends BaseSlashCommand {
 
                 await disUser.save(disUser.accounts)
 
-                interaction.reply({ content: `**تمت إزالة الحساب**`, flags: MessageFlags.Ephemeral })
+                interaction.reply(await accountsEmbed(interaction, interaction.user.id))
             }else interaction.reply({ content: `😔 **لا توجد حسابات**`, flags: MessageFlags.Ephemeral })
         }
     }
@@ -201,23 +213,32 @@ module.exports = class CreateTimeTrackerSlashCommand extends BaseSlashCommand {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
             let roblox_name = interaction.fields.getTextInputValue('nameInput');
+            let validationCodeInput = interaction.fields.getTextInputValue('codeInput');
             let roblox_data = await verifyUser(roblox_name);
 
             if(!roblox_data || roblox_data.data.length === 0) {
                 return interaction.editReply({ content: `الاسم غير موجود ❌` });
             }
 
-            let disAcc = await RobloxUsers.findOne({ user_id: interaction.user.id });
+            let validCode = await validationCode.findOne({ userId: roblox_data.data[0].id })
 
-            let newAcc = {
-                roblox_username: roblox_data.data[0].name,
-                roblox_userId: roblox_data.data[0].id
-            };
+            if(!validCode) return interaction.editReply({ content: `الرجاء إنشاء كود تحقق ❌` });
 
-            disAcc.accounts.push(newAcc);
-            await disAcc.save();
+            if(validCode.vCode == validationCodeInput){
+                let disAcc = await RobloxUsers.findOne({ user_id: interaction.user.id });
 
-            interaction.editReply(await accountsEmbed(interaction, interaction.user.id))
+                let newAcc = {
+                    roblox_username: roblox_data.data[0].name,
+                    roblox_userId: roblox_data.data[0].id
+                };
+
+                disAcc.accounts.push(newAcc);
+                await disAcc.save();
+
+                interaction.editReply(await accountsEmbed(interaction, interaction.user.id))
+            }else {
+                return interaction.editReply({ content: `كود التحقق غير صحيح ❌` });
+            }
         }
     }
 

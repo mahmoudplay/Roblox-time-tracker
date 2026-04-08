@@ -4,6 +4,8 @@ import cors from 'cors'
 import { mongodbConnection } from './controller/mongoConn';
 import timeTracker from './schemas/timeSchema';
 import authReq from './middlewares/auth';
+import { getValidationCode } from './utils/vaildCode';
+import validationCode from './schemas/validSchema';
 const port = process.env.PORT || 3000
 const app = express();
 const robuxFund = 0.0011111111111111;
@@ -45,6 +47,25 @@ app.post('/', authReq, async (req:Request, res:Response) => {
     }
 
     console.log(body)
+})
+
+app.post("/validation", authReq, async (req:Request, res:Response) => {
+    const body = req.body;
+    const userId = body.userId;
+    const vCode = `${getValidationCode(6)}-${getValidationCode(6)}`
+
+    if(!userId) return res.status(400).send('Bad Request')
+
+    try{
+        let newValidationCode = new validationCode({ userId, vCode })
+        newValidationCode.save()
+
+        res.status(200).json({ code: vCode })
+    }catch(err){
+        res.status(500).send("Error")
+        console.log(err)
+    }
+
 })
 
 app.listen(port, () => {
